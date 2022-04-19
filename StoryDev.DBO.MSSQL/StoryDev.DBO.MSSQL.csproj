@@ -11,13 +11,14 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/storydev/StoryDev.DBO</RepositoryUrl>
     <PackageTags>orm; database</PackageTags>
-    <PackageLicenseFile>E:\StoryDev\Software\Libraries\StoryDev.DBO\StoryDev.DBO.MSSQL\LICENSE.md</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+	<None Include="LICENSE.md" Pack="true" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Data.OracleClient" />

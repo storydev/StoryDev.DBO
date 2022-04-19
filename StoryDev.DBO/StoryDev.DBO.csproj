@@ -10,13 +10,15 @@
     <RepositoryUrl>https://github.com/storydev/StoryDev.DBO</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>orm; database</PackageTags>
-    <PackageLicenseFile>E:\StoryDev\Software\Libraries\StoryDev.DBO\StoryDev.DBO\LICENSE.md</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+	  <None Include="LICENSE.txt" Pack="true" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
