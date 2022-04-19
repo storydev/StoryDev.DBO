@@ -31,7 +31,7 @@ This library is licensed under the BSD 2-Clause.
 **BSD 2-Clause License**
 
 ```
-Copyright <YEAR> <COPYRIGHT HOLDER>
+Copyright 2022 StoryDev Studios
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
