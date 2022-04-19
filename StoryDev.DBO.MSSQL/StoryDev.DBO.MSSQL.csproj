@@ -5,7 +5,20 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <Authors>StoryDev</Authors>
+    <Company>StoryDev Studios</Company>
+    <Description>The Microsoft SQL Database module for StoryDev.DBO.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/storydev/StoryDev.DBO</RepositoryUrl>
+    <PackageTags>orm; database</PackageTags>
+    <PackageLicenseFile>E:\StoryDev\Software\Libraries\StoryDev.DBO\StoryDev.DBO.MSSQL\LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Data.OracleClient" />
     <Reference Include="System.IdentityModel" />

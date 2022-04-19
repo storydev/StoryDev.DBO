@@ -3,7 +3,20 @@
     <TargetFramework>net472</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Authors>StoryDev</Authors>
+    <Company>StoryDev Studios</Company>
+    <Description>The MySQL Database module for StoryDev.DBO.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/storydev/StoryDev.DBO</RepositoryUrl>
+    <PackageTags>orm; database</PackageTags>
+    <PackageLicenseFile>E:\StoryDev\Software\Libraries\StoryDev.DBO\StoryDev.DBO.MySQL\LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel" />
     <Reference Include="System.Configuration.Install" />

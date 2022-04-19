@@ -3,7 +3,21 @@
     <TargetFramework>net472</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Company>StoryDev Studios</Company>
+    <Authors>StoryDev</Authors>
+    <Description>A micro-ORM with bulk querying, flexible filtering and dynamic database object management. Support for all major SQL vendors and JSON file format.</Description>
+    <RepositoryUrl>https://github.com/storydev/StoryDev.DBO</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>orm; database</PackageTags>
+    <PackageLicenseFile>E:\StoryDev\Software\Libraries\StoryDev.DBO\StoryDev.DBO\LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Newtonsoft.Json">
