@@ -8,7 +8,7 @@ using System.Reflection;
 using Oracle.ManagedDataAccess.Client;
 using StoryDev.DBO.Scripting;
 
-namespace StoryDev.DBO.PostgreSQL
+namespace StoryDev.DBO.Oracle
 {
     public class DBManager : IInstanceManager
     {
@@ -49,6 +49,16 @@ namespace StoryDev.DBO.PostgreSQL
                 var casted = (OracleConnection)con;
                 casted.Close();
             }
+        }
+
+        public void CreateTable(string name, Type dbType = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CreateTable<T>()
+        {
+            throw new NotImplementedException();
         }
 
         public int End()

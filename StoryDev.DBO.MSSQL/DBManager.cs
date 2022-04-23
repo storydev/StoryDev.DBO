@@ -51,6 +51,164 @@ namespace StoryDev.DBO.MSSQL
             }
         }
 
+        public void CreateTable(string name, Type dbType = null)
+        {
+            Type type = null;
+            if (dbType != null)
+            {
+                type = dbType;
+            }
+            else if (ItemConstructor.ResolvedTypes.ContainsKey(name))
+            {
+                type = ItemConstructor.ResolvedTypes[name];
+            }
+
+            string query = "CREATE TABLE IF NOT EXISTS " + name;
+            query += "(\r\n";
+            FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            for (int i = 0; i < fields.Length; i++)
+            {
+                var field = fields[i];
+                query += "\t";
+                if (!Utils.IsBasicArrayType(field.FieldType))
+                {
+                    query += field.Name + " ";
+                    query += GetSQLTypeName(field) + " ";
+                    var autoIncrement = (SQLAutoIncrement)field.GetCustomAttribute(typeof(SQLAutoIncrement));
+                    if (autoIncrement != null && Utils.IsNumberType(field.FieldType))
+                    {
+                        query += "identity(1, 1) ";
+                    }
+
+                    var primary = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                    if (primary != null && Utils.IsNumberType(field.FieldType))
+                    {
+                        query += "primary key ";
+                    }
+
+                    query += "\r\n";
+                }
+                else
+                {
+                    var attr = (SQLArrayFormat)field.GetCustomAttribute(typeof(SQLArrayFormat));
+                    if (attr.Type == ArrayType.Cascade)
+                    {
+                        query += field.Name + " ";
+                        query += "varchar(max) ";
+                        query += "\r\n";
+                    }
+                    else
+                    {
+                        if (attr.CustomSuffixes != null)
+                        {
+                            for (int j = 0; j < attr.ArrayMaxItems; j++)
+                            {
+                                query += field.Name + attr.CustomSuffixes[j] + " ";
+                                query += GetSQLTypeName(field) + " ";
+                                query += "\r\n";
+                            }
+                        }
+                        else if (attr.ArrayMaxItems > 0)
+                        {
+                            for (int j = 0; j < attr.ArrayMaxItems; j++)
+                            {
+                                query += field.Name + (attr.ColumnStartIndex + j) + " ";
+                                query += GetSQLTypeName(field) + " ";
+                                query += "\r\n";
+                            }
+                        }
+                    }
+                }
+            }
+
+            query += ");";
+
+            var connection = new SqlConnection(ConnectionInfo);
+            var command = new SqlCommand(query, connection);
+            command.ExecuteNonQuery();
+        }
+
+        private string GetSQLTypeName(FieldInfo field)
+        {
+            var type = field.FieldType;
+
+            if (type == typeof(bool) || type == typeof(bool[]))
+                return "bit";
+            else if (type == typeof(float) || type == typeof(float[]))
+                return "float(24)";
+            else if (type == typeof(double) || type == typeof(double[]))
+                return "float(53)";
+            else if (type == typeof(decimal) || type == typeof(decimal[]))
+                return "decimal(38)";
+            else if (type == typeof(long) || type == typeof(ulong) || type == typeof(long[]) || type == typeof(ulong[]))
+                return "bigint";
+            else if (type == typeof(int) || type == typeof(uint) || type == typeof(int[]) || type == typeof(uint[]))
+                return "int";
+            else if (type == typeof(short) || type == typeof(ushort) || type == typeof(short[]) || type == typeof(ushort[]))
+                return "smallint";
+            else if (type == typeof(byte) || type == typeof(sbyte) || type == typeof(byte[]) || type == typeof(sbyte[]))
+                return "tinyint";
+            else if (type == typeof(DateTime) || type == typeof(DateTime[]))
+            {
+                var attr = (SQLDate)field.GetCustomAttribute(typeof(SQLDate));
+                if (attr != null)
+                {
+                    if (attr.Format == SQLDateFormat.Date)
+                        return "date";
+                    else if (attr.Format == SQLDateFormat.DateTime)
+                        return "datetime";
+                    else if (attr.Format == SQLDateFormat.Time)
+                        return "time";
+                }
+                else
+                    return "datetime";
+            }
+            else if (type == typeof(string) || type == typeof(string[]))
+            {
+                var attr = (SQLStringSize)field.GetCustomAttribute(typeof(SQLStringSize));
+                if (attr != null)
+                {
+                    if (attr.StringType == SQLStringType.Fixed)
+                    {
+                        int size = attr.Size;
+                        if (attr.Size > 8000)
+                            size = 8000;
+                        else if (attr.Size < 0)
+                            size = 0;
+
+                        return "char(" + size + ")";
+                    }
+                    else if (attr.StringType == SQLStringType.Variable)
+                    {
+                        if (attr.Size == -1)
+                            return "varchar(max)";
+                        else
+                        {
+                            int size = attr.Size;
+                            if (attr.Size > 8000)
+                                size = 8000;
+                            else if (attr.Size < 0)
+                                size = 0;
+
+                            return "varchar(" + size + ")";
+                        }
+                    }
+                }
+                else
+                {
+                    return "varchar(max)";
+                }
+            }
+
+            return "";
+        }
+
+        public void CreateTable<T>()
+        {
+            var type = typeof(T);
+            CreateTable("", type);
+        }
+
         public int End()
         {
             int result = 0;

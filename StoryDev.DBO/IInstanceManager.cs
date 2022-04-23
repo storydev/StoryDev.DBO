@@ -21,6 +21,10 @@ namespace StoryDev.DBO
 
         int LastInsertedID { get; }
 
+        void CreateTable(string name, Type dbType = null);
+
+        void CreateTable<T>();
+
         IEnumerable<object> Search(string name, params DBFilter[] filters);
 
         IEnumerable<T> Search<T>(params DBFilter[] filters);

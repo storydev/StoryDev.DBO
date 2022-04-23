@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using Oracle.ManagedDataAccess.Client;
 
-namespace StoryDev.DBO.PostgreSQL
+namespace StoryDev.DBO.Oracle
 {
     public class DBObject : IDBObject
     {

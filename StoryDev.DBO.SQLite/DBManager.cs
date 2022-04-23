@@ -51,6 +51,16 @@ namespace StoryDev.DBO.SQLite
             }
         }
 
+        public void CreateTable(string name, Type dbType = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CreateTable<T>()
+        {
+            throw new NotImplementedException();
+        }
+
         public int End()
         {
             int result = 0;

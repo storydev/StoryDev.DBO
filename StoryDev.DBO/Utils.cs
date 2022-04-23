@@ -300,6 +300,23 @@ namespace StoryDev.DBO
             return result;
         }
 
+        public static bool IsBasicArrayType(Type type)
+        {
+            var result = (type == typeof(string[]) || type == typeof(bool[]) || type == typeof(DateTime[])
+                || type == typeof(int[]) || type == typeof(short[]) || type == typeof(long[])
+                || type == typeof(uint[]) || type == typeof(ushort[]) || type == typeof(ulong[])
+                || type == typeof(float[]) || type == typeof(double[]) || type == typeof(decimal[]));
+            return result;
+        }
+
+        public static bool IsNumberType(Type type)
+        {
+            var result = type == typeof(int) || type == typeof(short) || type == typeof(long)
+                || type == typeof(uint) || type == typeof(ushort) || type == typeof(ulong)
+                || type == typeof(byte) || type == typeof(sbyte);
+            return result;
+        }
+
         public static string GenerateDelete(string tableName, int ID)
         {
             string result = "DELETE FROM " + tableName;

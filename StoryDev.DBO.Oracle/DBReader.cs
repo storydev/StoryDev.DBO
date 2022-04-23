@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Oracle.ManagedDataAccess.Client;
 
-namespace StoryDev.DBO.PostgreSQL
+namespace StoryDev.DBO.Oracle
 {
     public class DBReader : IDBReader
     {

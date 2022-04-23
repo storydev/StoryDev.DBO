@@ -100,5 +100,15 @@ namespace StoryDev.DBO.Json
         {
             return 0;
         }
+
+        public void CreateTable(string name, Type dbType = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CreateTable<T>()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
