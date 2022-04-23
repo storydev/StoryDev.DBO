@@ -17,6 +17,135 @@ This library is a simpler approach to modern ORM systems, focusing on scripting 
 
 Note that LINQ queries are not supported at this time.
 
+## Building
+`StoryDev.DBO` was built using Visual Studio 2022 and .NET Framework 4.7.2.
+
+The reason not to support .NET Core at this time is due to the use of `System.Reflection.Emit`, which has limited cross-platform capabilities.
+
+**TO BUILD**
+
+Click "Restore NuGet Packages" under the solution in Solution Explorer.
+Open the Solution file in Visual Studio and click "Build All" under the Solution Explorer. "Release" mode is the default.
+
+### Known Conflicts
+Some database vendors may use different versions of `Google.Protobuf`. If you use more than one database vendor with `StoryDev.DBO`, you may need to update to at least `3.15.0` to resolve any conflicts.
+
+## Usage
+Getting started with `StoryDev.DBO` is very simple.
+
+To open a connection:
+
+```cs
+IInstanceManager manager = StoryDev.DBO.MySQL.DBObject.Manager;
+manager.ConnectionInfo = "Host=localhost;Port=3306;Database=test;Uid=admin;";
+var connection = manager.OpenConnection();
+manager.CloseConnection(connection);
+```
+
+To create a database object, we need to inherit from the respective database vendor.
+
+```cs
+
+class MyTable : StoryDev.DBO.MySQL.DBObject
+{
+	
+}
+
+```
+
+All members that you wish to be queried and captured by the underyling API must be FIELDS, NOT properties.
+
+`StoryDev.DBO` supports all C# basic types, and will include support for arrays soon.
+
+```cs
+
+class MyTable : StoryDev.DBO.MySQL.DBObject
+{
+	
+	[SQLPrimaryKey]
+	[SQLAutoIncrement]
+	public int UID;
+
+	[SQLStringSize(SQLStringType.Fixed, 256)]
+	public string Name;
+
+	[SQLStringSize(SQLStringType.Variable, -1)]
+	public string Description;
+
+	public MyTable()
+	{
+		
+	}
+
+}
+
+```
+
+The above attributes are primarily for use when creating tables using `manager.CreateTable`, but this has yet to be implemented and tested.
+
+By creating an instance of your new type, you have access to the following functions: `Insert()`, `Update(filters)`, `Delete()`.
+
+`Insert()`, of course, inserts the database object into the currently active database connection information (previously setup with opening a connection).
+`Update()` updates the current instance. If `filters` are provided, then the current instance fields is used to update all rows that match the filters.
+`Delete()` naturally deletes the database object.
+
+To search a database, we need to use the `IInstanceManager`. This interface object should be stored for later use, especially if using multiple types of connections simultaneously.
+
+```cs
+IEnumerable<MyTable> searchResults = manager.Search<MyTable>();
+foreach (MyTable result in searchResults)
+{
+	// Do something
+}
+```
+
+If we provide no filters, we get all the rows within that table. But let's say we added a new field called `Type` to our `MyTable` class:
+
+```cs
+
+class MyTable : StoryDev.DBO.MySQL.DBObject
+{
+	
+	[SQLPrimaryKey]
+	[SQLAutoIncrement]
+	public int UID;
+
+	[SQLStringSize(SQLStringType.Fixed, 256)]
+	public string Name;
+
+	[SQLStringSize(SQLStringType.Variable, -1)]
+	public string Description;
+
+	public byte Type;
+
+	public MyTable()
+	{
+		
+	}
+
+}
+
+```
+
+And search with some filters:
+
+```cs
+IEnumerable<MyTable> searchResults = manager.Search<MyTable>(new DBFilter() {
+	FieldName = "Type",
+	Operator = DBOperator.Equals,
+	ConditionValue = 1
+});
+foreach (MyTable result in searchResults)
+{
+	// Do something
+}
+
+```
+
+We will get all `MyTable` instances matching the condition, in which case is `Type == 1`.
+
+Currently, LINQ queries are not supported, but with `DBFilter` we can perform unlimited filtering for users without needing to create a LINQ query for every possible condition.
+
 ## Roadmap
 DBO will be developed over time and will include more features. These will include:
 
