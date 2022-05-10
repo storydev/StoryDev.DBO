@@ -13,7 +13,8 @@ namespace StoryDev.DBO.Scripting
     {
 
         public string Name;
-        public string Info;
+        public ConnectionString Info;
+        public ConnectionString TestInfo;
         public SourceType Type;
         public DatabaseVendor Vendor;
         public bool IsDefaultConnection;
@@ -39,12 +40,13 @@ namespace StoryDev.DBO.Scripting
     /// </summary>
     public enum DatabaseVendor
     {
-        None,
-        SQLite,
-        MySQL,
-        Postgresql,
-        Oracle,
-        Microsoft
+        None = -1,
+        SQLite = 0,
+        MySQL = 1,
+        Postgresql = 2,
+        Oracle = 3,
+        Microsoft = 4,
     }
+
 
 }

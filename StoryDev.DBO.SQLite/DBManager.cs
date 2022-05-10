@@ -53,12 +53,86 @@ namespace StoryDev.DBO.SQLite
 
         public void CreateTable(string name, Type dbType = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(name) && dbType == null)
+            {
+                throw new ArgumentException("name");
+            }
+
+            Type resolved = null;
+            if (dbType != null)
+            {
+                resolved = dbType;
+            }
+            else if (ItemConstructor.ResolvedTypes.ContainsKey(name))
+            {
+                resolved = ItemConstructor.ResolvedTypes[name];
+            }
+
+            if (string.IsNullOrEmpty(name))
+            {
+                name = dbType.Name;
+            }
+
+            string query = "";
+            query += "CREATE TABLE IF NOT EXISTS " + name + " (\r\n";
+
+            string primaryKey = "";
+            FieldInfo[] fields = resolved.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            for (int i = 0; i < fields.Length; i++)
+            {
+                FieldInfo field = fields[i];
+                if (field.IsInitOnly)
+                    continue;
+
+                query += "\t";
+
+                var primaryKeyAttr = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeyAttr != null)
+                {
+                    if (string.IsNullOrEmpty(primaryKey))
+                    {
+                        primaryKey = field.Name;
+                    }
+                    else
+                    {
+                        throw new Exception("You cannot have more than one primary key on the database object.");
+                    }
+                }
+
+                query += field.Name;
+                query += " ";
+                query += Utils.GetSQLType(field.FieldType, DatabaseVendor.SQLite) + " ";
+
+                if (primaryKeyAttr != null)
+                {
+                    query += "PRIMARY KEY ";
+                }
+
+                var autoIncrementAttr = (SQLAutoIncrement)field.GetCustomAttribute(typeof(SQLAutoIncrement));
+                if (autoIncrementAttr != null && primaryKeyAttr != null)
+                {
+                    query += "AUTOINCREMENT ";
+                }
+
+                if (i < fields.Length - 1)
+                {
+                    query += ",\r\n";
+                }
+            }
+
+            query += ");";
+
+            var connection = (SQLiteConnection)OpenConnection(ConnectionInfo);
+            var command = new SQLiteCommand(query, connection);
+            command.ExecuteNonQuery();
+            CloseConnection(connection);
         }
+
+
 
         public void CreateTable<T>()
         {
-            throw new NotImplementedException();
+            CreateTable("", typeof(T));
         }
 
         public int End()
@@ -112,7 +186,7 @@ namespace StoryDev.DBO.SQLite
 
             var clsName = currentType.Name;
             string query = "SELECT ";
-            if (SearchOptions.UsingOptions && SearchOptions.UseSearchCount)
+            if (Searching.UsingOptions && Searching.UseSearchCount)
             {
                 query += "COUNT(*)";
             }
@@ -123,16 +197,16 @@ namespace StoryDev.DBO.SQLite
             query += " FROM " + clsName;
             query += " WHERE " + Utils.GetFilterString(filters);
 
-            if (SearchOptions.UsingOptions && !SearchOptions.UseSearchCount
-                && SearchOptions.Limit > -1)
+            if (Searching.UsingOptions && !Searching.UseSearchCount
+                && Searching.Limit > -1)
             {
-                if (SearchOptions.CurrentPage > -1)
+                if (Searching.CurrentPage > -1)
                 {
-                    query += " LIMIT " + SearchOptions.Limit + ", " + (SearchOptions.CurrentPage * SearchOptions.Limit);
+                    query += " LIMIT " + Searching.Limit + ", " + (Searching.CurrentPage * Searching.Limit);
                 }
                 else
                 {
-                    query += " LIMIT " + SearchOptions.Limit;
+                    query += " LIMIT " + Searching.Limit;
                 }
             }
 
@@ -144,7 +218,7 @@ namespace StoryDev.DBO.SQLite
             IDBReader reader = new DBReader(command.ExecuteReader());
             while (reader.Read())
             {
-                if (!SearchOptions.UseSearchCount)
+                if (!Searching.UseSearchCount)
                 {
                     var instance = Activator.CreateInstance(currentType);
                     for (int i = 0; i < fields.Length; i++)
@@ -180,7 +254,7 @@ namespace StoryDev.DBO.SQLite
 
             var clsName = currentType.Name;
             string query = "SELECT ";
-            if (SearchOptions.UsingOptions && SearchOptions.UseSearchCount)
+            if (Searching.UsingOptions && Searching.UseSearchCount)
             {
                 query += "COUNT(*)";
             }
@@ -191,16 +265,16 @@ namespace StoryDev.DBO.SQLite
             query += " FROM " + clsName;
             query += " WHERE " + Utils.GetFilterString(filters);
 
-            if (SearchOptions.UsingOptions && !SearchOptions.UseSearchCount
-                && SearchOptions.Limit > -1)
+            if (Searching.UsingOptions && !Searching.UseSearchCount
+                && Searching.Limit > -1)
             {
-                if (SearchOptions.CurrentPage > -1)
+                if (Searching.CurrentPage > -1)
                 {
-                    query += " LIMIT " + SearchOptions.Limit + ", " + (SearchOptions.CurrentPage * SearchOptions.Limit);
+                    query += " LIMIT " + Searching.Limit + ", " + (Searching.CurrentPage * Searching.Limit);
                 }
                 else
                 {
-                    query += " LIMIT " + SearchOptions.Limit;
+                    query += " LIMIT " + Searching.Limit;
                 }
             }
 
@@ -212,7 +286,7 @@ namespace StoryDev.DBO.SQLite
             IDBReader reader = new DBReader(command.ExecuteReader());
             while (reader.Read())
             {
-                if (!SearchOptions.UseSearchCount)
+                if (!Searching.UseSearchCount)
                 {
                     var instance = (T)Activator.CreateInstance(currentType);
                     for (int i = 0; i < fields.Length; i++)

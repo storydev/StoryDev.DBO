@@ -27,4 +27,14 @@ namespace StoryDev.DBO
         Fixed,
         Variable
     }
+
+    public enum SQLStringSizeFormat
+    { 
+        Tiny = 0,
+        Small,
+        Normal,
+        Medium,
+        Long
+    }
+
 }

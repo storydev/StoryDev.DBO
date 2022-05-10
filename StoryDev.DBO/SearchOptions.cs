@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoryDev.DBO
 {
-    public class SearchOptions
+    public class Searching
     {
 
         public static int CurrentPage { get; private set; } = -1;

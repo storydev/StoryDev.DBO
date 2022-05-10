@@ -317,15 +317,15 @@ namespace StoryDev.DBO
             return result;
         }
 
-        public static string GenerateDelete(string tableName, int ID)
+        public static string GenerateDelete(string tableName, object ID)
         {
             string result = "DELETE FROM " + tableName;
-            result += " WHERE ID = " + ID;
+            result += " WHERE ID = " + ID.ToString();
 
             return result;
         }
 
-        public static string GenerateInsert(string tableName, FieldInfo[] fields, bool requiresReturning = false)
+        public static string GenerateInsert(string tableName, FieldInfo[] fields, string primaryKeyName, bool requiresReturning = false)
         {
             var query = "INSERT INTO " + tableName + " (";
 
@@ -333,7 +333,7 @@ namespace StoryDev.DBO
             for (int i = 0; i < fields.Length; i++)
             {
                 var field = fields[i];
-                if (field.Name == "ID" || field.IsInitOnly)
+                if (field.Name == primaryKeyName || field.IsInitOnly)
                     continue;
 
                 if (!firstValue)
@@ -351,7 +351,7 @@ namespace StoryDev.DBO
             for (int i = 0; i < fields.Length; i++)
             {
                 var field = fields[i];
-                if (field.Name == "ID" || field.IsInitOnly)
+                if (field.Name == primaryKeyName || field.IsInitOnly)
                     continue;
 
                 if (!firstValue1)
@@ -372,7 +372,7 @@ namespace StoryDev.DBO
             return query;
         }
 
-        public static string GenerateUpdate(string tableName, FieldInfo[] fields, int ID, DBFilter[] filters = null)
+        public static string GenerateUpdate(string tableName, FieldInfo[] fields, object ID, string primaryKeyName, DBFilter[] filters = null)
         {
             var query = "UPDATE " + tableName + " SET ";
             
@@ -380,7 +380,7 @@ namespace StoryDev.DBO
             for (int i = 0; i < fields.Length; i++)
             {
                 var field = fields[i];
-                if (field.Name == "ID" || field.IsInitOnly)
+                if (field.Name == primaryKeyName || field.IsInitOnly)
                     continue;
 
                 if (!isFirstValue)
@@ -396,9 +396,212 @@ namespace StoryDev.DBO
             if (filters != null)
                 query += " WHERE " + GetFilterString(filters);
             else
-                query += " WHERE ID = " + ID;
+                query += " WHERE ID = " + ID.ToString();
 
             return query;
+        }
+
+        public static string GetSQLType(Type type, Scripting.DatabaseVendor vendor)
+        {
+            var stringSize = (SQLStringSize)type.GetCustomAttribute(typeof(SQLStringSize));
+
+
+            if (type == typeof(string))
+            {
+                var length = 255;
+                if (vendor == Scripting.DatabaseVendor.SQLite)
+                {
+                    return "TEXT";
+                }
+
+                if (stringSize != null)
+                {
+                    if (stringSize.Size > 0)
+                        length = stringSize.Size;
+
+                    if (stringSize.StringType == SQLStringType.Variable)
+                        return "VARCHAR(" + length + ")";
+                    else if (stringSize.StringType == SQLStringType.Fixed)
+                    {
+                        if (stringSize.Size == (int)SQLStringSizeFormat.Tiny)
+                            return "TINYTEXT";
+                        else if (stringSize.Size == (int)SQLStringSizeFormat.Normal)
+                            return "TEXT";
+                        else if (stringSize.Size == (int)SQLStringSizeFormat.Medium)
+                            return "MEDIUMTEXT";
+                        else if (stringSize.Size == (int)SQLStringSizeFormat.Long)
+                            return "LONGTEXT";
+                    }
+                }
+            }
+            else if (type == typeof(sbyte) || type == typeof(byte))
+            {
+                if (vendor == Scripting.DatabaseVendor.SQLite)
+                {
+                    return "INTEGER";
+                }
+
+                //var length = 3;
+                //var unsigned = "";
+
+                //if (type == typeof(byte))
+                //    unsigned = "UNSIGNED";
+
+                //if (option.Size > 0)
+                //{
+                //    if (option.Size < length)
+                //        length = option.Size;
+                //}
+
+                //return "TINYINT(" + length + ") " + unsigned;
+            }
+            else if (type == typeof(short) || type == typeof(ushort))
+            {
+                if (vendor == Scripting.DatabaseVendor.SQLite)
+                {
+                    return "INTEGER";
+                }
+
+                //var length = 5;
+                //var unsigned = "";
+
+                //if (type == typeof(ushort))
+                //    unsigned = "UNSIGNED";
+
+                //if (option.Size > 0)
+                //{
+                //    if (option.Size < length)
+                //        length = option.Size;
+                //}
+
+                //return "TINYINT(" + length + ") " + unsigned;
+            }
+            else if (type == typeof(int) || type == typeof(uint))
+            {
+                if (vendor == Scripting.DatabaseVendor.SQLite)
+                {
+                    return "INTEGER";
+                }
+
+                //var length = 10;
+                //var unsigned = "";
+
+                //if (type == typeof(uint))
+                //    unsigned = "UNSIGNED";
+
+                //if (option.Size > 0)
+                //{
+                //    if (option.Size < length)
+                //        length = option.Size;
+                //}
+
+                //return "INT(" + length + ") " + unsigned;
+            }
+            else if (type == typeof(long) || type == typeof(ulong))
+            {
+                if (vendor == Scripting.DatabaseVendor.SQLite)
+                {
+                    return "INTEGER";
+                }
+
+                //var length = 20;
+                //var unsigned = "";
+
+                //if (type == typeof(ulong))
+                //    unsigned = "UNSIGNED";
+
+                //if (option.Size > 0)
+                //{
+                //    if (option.Size < length)
+                //        length = option.Size;
+                //}
+
+                //return "BIGINT(" + length + ") " + unsigned;
+            }
+            else if (type == typeof(decimal))
+            {
+                if (vendor == Scripting.DatabaseVendor.SQLite)
+                {
+                    return "REAL";
+                }
+
+                //var length = 65;
+
+                //if (option.Size > 0)
+                //{
+                //    if (option.Size < length)
+                //        length = option.Size;
+                //}
+
+                //return "DECIMAL(" + length + ") ";
+            }
+            else if (type == typeof(float))
+            {
+                if (vendor == Scripting.DatabaseVendor.SQLite)
+                {
+                    return "REAL";
+                }
+
+                //var length = 24;
+
+                //if (option.Size > 0)
+                //{
+                //    if (option.Size < length)
+                //        length = option.Size;
+                //}
+
+                //return "FLOAT(" + length + ") ";
+            }
+            else if (type == typeof(double))
+            {
+                if (vendor == Scripting.DatabaseVendor.SQLite)
+                {
+                    return "REAL";
+                }
+
+                //var length = 53;
+
+                //if (option.Size > 0)
+                //{
+                //    if (option.Size < length)
+                //        length = option.Size;
+                //}
+
+                //if (length > 0 && length < 25)
+                //    return "FLOAT(" + length + ") ";
+                //else
+                //    return "DOUBLE(" + length + ") ";
+            }
+            else if (type == typeof(DateTime))
+            {
+                if (vendor == Scripting.DatabaseVendor.SQLite)
+                {
+                    return "TEXT";
+                }
+
+                //if (option.DateFormat == SQLDateFormat.Date)
+                //{
+                //    return "DATE ";
+                //}
+                //else if (option.DateFormat == SQLDateFormat.DateTime)
+                //{
+                //    return "DATETIME ";
+                //}
+                //else if (option.DateFormat == SQLDateFormat.Time)
+                //{
+                //    return "TIME ";
+                //}
+                //else if (option.DateFormat == SQLDateFormat.Timestamp)
+                //{
+                //    return "TIMESTAMP ";
+                //}
+                //else if (option.DateFormat == SQLDateFormat.Year)
+                //{
+                //    return "YEAR ";
+                //}
+            }
+
+            return "";
         }
 
     }

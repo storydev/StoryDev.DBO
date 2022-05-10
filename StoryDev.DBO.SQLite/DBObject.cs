@@ -22,11 +22,25 @@ namespace StoryDev.DBO.SQLite
             }
         }
 
-        public int ID;
-
         public void Delete()
         {
-            var query = Utils.GenerateDelete(GetType().Name, ID);
+            FieldInfo[] fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            object primaryKeyValue = null;
+            foreach (var field in fields)
+            {
+                var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeys != null)
+                {
+                    primaryKeyValue = field.GetValue(this);
+                }
+            }
+
+            if (primaryKeyValue == null)
+            {
+                throw new Exception("No primary key has been set for this database object type.");
+            }
+
+            var query = Utils.GenerateDelete(GetType().Name, primaryKeyValue);
 
             if (!Manager.IsBuilding)
             {
@@ -43,15 +57,30 @@ namespace StoryDev.DBO.SQLite
 
         public void Insert()
         {
-            var fields = GetType().GetFields();
-            var query = Utils.GenerateInsert(GetType().Name, fields);
+            var fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            string primaryKey = null;
+            foreach (var field in fields)
+            {
+                var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeys != null)
+                {
+                    primaryKey = field.Name;
+                }
+            }
+
+            if (primaryKey == null)
+            {
+                throw new Exception("No primary key has been set for this database object type.");
+            }
+
+            var query = Utils.GenerateInsert(GetType().Name, fields, primaryKey);
 
             var connection = new SQLiteConnection(Manager.ConnectionInfo);
             var command = new SQLiteCommand(query);
             for (int i = 0; i < fields.Length; i++)
             {
                 var field = fields[i];
-                if (field.Name == "ID")
+                if (field.Name == primaryKey)
                     continue;
                 command.Parameters.AddWithValue("@" + field.Name, field.GetValue(this));
             }
@@ -74,7 +103,24 @@ namespace StoryDev.DBO.SQLite
         {
             var name = GetType().Name;
             var fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-            var query = Utils.GenerateUpdate(name, fields, ID, filters);
+            string primaryKey = null;
+            object primaryKeyValue = null;
+            foreach (var field in fields)
+            {
+                var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeys != null)
+                {
+                    primaryKey = field.Name;
+                    primaryKeyValue = field.GetValue(this);
+                }
+            }
+
+            if (primaryKey == null || primaryKeyValue == null)
+            {
+                throw new Exception("No primary key has been set for this database object type.");
+            }
+
+            var query = Utils.GenerateUpdate(name, fields, primaryKeyValue, primaryKey, filters);
 
             var connection = new SQLiteConnection(Manager.ConnectionInfo);
             var command = new SQLiteCommand(query);
