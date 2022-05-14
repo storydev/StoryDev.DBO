@@ -24,7 +24,12 @@ namespace StoryDev.DBO
 
         public ConnectionString()
         {
-
+            FileOrFolder = "";
+            ServerOrHost = "";
+            DatabaseName = "";
+            Port = 0;
+            Username = "";
+            Password = "";
         }
 
         public override string ToString()

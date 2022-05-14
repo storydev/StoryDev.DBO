@@ -23,7 +23,9 @@ namespace StoryDev.DBO.Scripting
 
         public SourceOptions()
         {
-            
+            Name = "";
+            Info = new ConnectionString();
+            TestInfo = new ConnectionString();
         }
 
     }
