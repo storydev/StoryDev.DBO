@@ -22,11 +22,25 @@ namespace StoryDev.DBO.PostgreSQL
             }
         }
 
-        public int ID;
-
         public void Delete()
         {
-            string query = Utils.GenerateDelete(GetType().Name, ID);
+            FieldInfo[] fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            object primaryKeyValue = null;
+            foreach (var field in fields)
+            {
+                var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeys != null)
+                {
+                    primaryKeyValue = field.GetValue(this);
+                }
+            }
+
+            if (primaryKeyValue == null)
+            {
+                throw new Exception("No primary key has been set for this database object type.");
+            }
+
+            string query = Utils.GenerateDelete(GetType().Name, primaryKeyValue);
 
             if (!Manager.IsBuilding)
             {
@@ -43,8 +57,23 @@ namespace StoryDev.DBO.PostgreSQL
 
         public void Insert()
         {
-            FieldInfo[] fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-            string query = Utils.GenerateInsert(GetType().Name, fields, true);
+            var fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            string primaryKey = null;
+            foreach (var field in fields)
+            {
+                var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeys != null)
+                {
+                    primaryKey = field.Name;
+                }
+            }
+
+            if (primaryKey == null)
+            {
+                throw new Exception("No primary key has been set for this database object type.");
+            }
+
+            string query = Utils.GenerateInsert(GetType().Name, fields, primaryKey, true);
 
             var connection = new NpgsqlConnection(Manager.ConnectionInfo);
             var command = new NpgsqlCommand(query, connection);
@@ -71,8 +100,26 @@ namespace StoryDev.DBO.PostgreSQL
 
         public void Update(DBFilter[] filters = null)
         {
-            FieldInfo[] fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-            var query = Utils.GenerateUpdate(GetType().Name, fields, ID, filters);
+            var name = GetType().Name;
+            var fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            string primaryKey = null;
+            object primaryKeyValue = null;
+            foreach (var field in fields)
+            {
+                var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeys != null)
+                {
+                    primaryKey = field.Name;
+                    primaryKeyValue = field.GetValue(this);
+                }
+            }
+
+            if (primaryKey == null || primaryKeyValue == null)
+            {
+                throw new Exception("No primary key has been set for this database object type.");
+            }
+
+            var query = Utils.GenerateUpdate(GetType().Name, fields, primaryKeyValue, primaryKey, filters);
             var connection = new NpgsqlConnection(Manager.ConnectionInfo);
             var command = new NpgsqlCommand(query);
             for (int i = 0; i < fields.Length; i++)

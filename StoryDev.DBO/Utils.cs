@@ -365,7 +365,7 @@ namespace StoryDev.DBO
             query += ")";
 
             if (requiresReturning)
-                query += " RETURNING ID";
+                query += " RETURNING " + primaryKeyName;
 
             query += ";";
 

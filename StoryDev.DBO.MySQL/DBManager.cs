@@ -116,7 +116,7 @@ namespace StoryDev.DBO.MySQL
 
             var clsName = currentType.Name;
             string query = "SELECT ";
-            if (SearchOptions.UsingOptions && SearchOptions.UseSearchCount)
+            if (Searching.UsingOptions && Searching.UseSearchCount)
             {
                 query += "COUNT(*)";
             }
@@ -127,16 +127,16 @@ namespace StoryDev.DBO.MySQL
             query += " FROM " + clsName;
             query += " WHERE " + Utils.GetFilterString(filters);
 
-            if (SearchOptions.UsingOptions && !SearchOptions.UseSearchCount
-                && SearchOptions.Limit > -1)
+            if (Searching.UsingOptions && !Searching.UseSearchCount
+                && Searching.Limit > -1)
             {
-                if (SearchOptions.CurrentPage > -1)
+                if (Searching.CurrentPage > -1)
                 {
-                    query += " LIMIT " + SearchOptions.Limit + ", " + (SearchOptions.CurrentPage * SearchOptions.Limit);
+                    query += " LIMIT " + Searching.Limit + ", " + (Searching.CurrentPage * Searching.Limit);
                 }
                 else
                 {
-                    query += " LIMIT " + SearchOptions.Limit;
+                    query += " LIMIT " + Searching.Limit;
                 }
             }
 
@@ -148,7 +148,7 @@ namespace StoryDev.DBO.MySQL
             IDBReader reader = new DBReader(command.ExecuteReader());
             while (reader.Read())
             {
-                if (!SearchOptions.UseSearchCount)
+                if (!Searching.UseSearchCount)
                 {
                     var instance = Activator.CreateInstance(currentType);
                     for (int i = 0; i < fields.Length; i++)
@@ -184,7 +184,7 @@ namespace StoryDev.DBO.MySQL
 
             var clsName = currentType.Name;
             string query = "SELECT ";
-            if (SearchOptions.UsingOptions && SearchOptions.UseSearchCount)
+            if (Searching.UsingOptions && Searching.UseSearchCount)
             {
                 query += "COUNT(*)";
             }
@@ -195,16 +195,16 @@ namespace StoryDev.DBO.MySQL
             query += " FROM " + clsName;
             query += " WHERE " + Utils.GetFilterString(filters);
 
-            if (SearchOptions.UsingOptions && !SearchOptions.UseSearchCount
-                && SearchOptions.Limit > -1)
+            if (Searching.UsingOptions && !Searching.UseSearchCount
+                && Searching.Limit > -1)
             {
-                if (SearchOptions.CurrentPage > -1)
+                if (Searching.CurrentPage > -1)
                 {
-                    query += " LIMIT " + SearchOptions.Limit + ", " + (SearchOptions.CurrentPage * SearchOptions.Limit);
+                    query += " LIMIT " + Searching.Limit + ", " + (Searching.CurrentPage * Searching.Limit);
                 }
                 else
                 {
-                    query += " LIMIT " + SearchOptions.Limit;
+                    query += " LIMIT " + Searching.Limit;
                 }
             }
 
@@ -216,7 +216,7 @@ namespace StoryDev.DBO.MySQL
             IDBReader reader = new DBReader(command.ExecuteReader());
             while (reader.Read())
             {
-                if (!SearchOptions.UseSearchCount)
+                if (!Searching.UseSearchCount)
                 {
                     var instance = (T)Activator.CreateInstance(currentType);
                     for (int i = 0; i < fields.Length; i++)

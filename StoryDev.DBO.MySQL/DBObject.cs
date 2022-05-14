@@ -22,12 +22,26 @@ namespace StoryDev.DBO.MySQL
             }
         }
 
-        public int ID;
-
         public void Delete()
         {
             var name = GetType().Name;
-            var query = Utils.GenerateDelete(name, ID);
+            FieldInfo[] fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            object primaryKeyValue = null;
+            foreach (var field in fields)
+            {
+                var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeys != null)
+                {
+                    primaryKeyValue = field.GetValue(this);
+                }
+            }
+
+            if (primaryKeyValue == null)
+            {
+                throw new Exception("No primary key has been set for this database object type.");
+            }
+
+            var query = Utils.GenerateDelete(name, primaryKeyValue);
 
             if (!Manager.IsBuilding)
             {
@@ -45,8 +59,23 @@ namespace StoryDev.DBO.MySQL
         public void Insert()
         {
             var name = GetType().Name;
-            var fields = GetType().GetFields();
-            var query = Utils.GenerateInsert(name, fields);
+            var fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            string primaryKey = null;
+            foreach (var field in fields)
+            {
+                var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeys != null)
+                {
+                    primaryKey = field.Name;
+                }
+            }
+
+            if (primaryKey == null)
+            {
+                throw new Exception("No primary key has been set for this database object type.");
+            }
+
+            var query = Utils.GenerateInsert(name, fields, primaryKey);
 
             var connection = new MySqlConnection(Manager.ConnectionInfo);
             var command = new MySqlCommand(query);
@@ -76,7 +105,24 @@ namespace StoryDev.DBO.MySQL
         {
             var name = GetType().Name;
             var fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-            var query = Utils.GenerateUpdate(name, fields, ID, filters);
+            string primaryKey = null;
+            object primaryKeyValue = null;
+            foreach (var field in fields)
+            {
+                var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeys != null)
+                {
+                    primaryKey = field.Name;
+                    primaryKeyValue = field.GetValue(this);
+                }
+            }
+
+            if (primaryKey == null || primaryKeyValue == null)
+            {
+                throw new Exception("No primary key has been set for this database object type.");
+            }
+
+            var query = Utils.GenerateUpdate(name, fields, primaryKeyValue, primaryKey, filters);
 
             var connection = new MySqlConnection(Manager.ConnectionInfo);
             var command = new MySqlCommand(query);

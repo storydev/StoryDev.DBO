@@ -39,7 +39,7 @@ namespace StoryDev.DBO.SQLite
         }
 
         /// <summary>
-        /// Close a SQLite database connection.
+        /// Close an SQLite database connection.
         /// </summary>
         /// <param name="con">The SQLite database connection object.</param>
         public void CloseConnection(object con)
@@ -162,7 +162,7 @@ namespace StoryDev.DBO.SQLite
         }
 
         /// <summary>
-        /// Search a SQLite database with the given filters. This function uses
+        /// Search an SQLite database with the given filters. This function uses
         /// the Scripting implementation, normally provided in conjunction with StoryDev
         /// Data Studio.
         /// </summary>

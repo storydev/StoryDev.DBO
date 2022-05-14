@@ -15,6 +15,8 @@ namespace StoryDev.DBO.Scripting
         public string Name;
         public ConnectionString Info;
         public ConnectionString TestInfo;
+        public bool HasTest;
+        public bool IsActive;
         public SourceType Type;
         public DatabaseVendor Vendor;
         public bool IsDefaultConnection;
