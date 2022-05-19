@@ -263,7 +263,9 @@ namespace StoryDev.DBO.SQLite
                 query += "*";
             }
             query += " FROM " + clsName;
-            query += " WHERE " + Utils.GetFilterString(filters);
+            var filterString = Utils.GetFilterString(filters);
+            if (!string.IsNullOrEmpty(filterString))
+                query += " WHERE " + filterString;
 
             if (Searching.UsingOptions && !Searching.UseSearchCount
                 && Searching.Limit > -1)
@@ -275,6 +277,19 @@ namespace StoryDev.DBO.SQLite
                 else
                 {
                     query += " LIMIT " + Searching.Limit;
+                }
+            }
+
+            if (Searching.UsingOptions && Searching.OrderBy != "")
+            {
+                query += " ORDER BY " + Searching.OrderBy + " ";
+                if (Searching.OrderAZ == OrderMethod.Ascending)
+                {
+                    query += "ASC";
+                }
+                else if (Searching.OrderAZ == OrderMethod.Descending)
+                {
+                    query += "DESC";
                 }
             }
 

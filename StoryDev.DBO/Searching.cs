@@ -14,6 +14,10 @@ namespace StoryDev.DBO
         public static bool UsingOptions { get; private set; }
         public static bool UseSearchCount { get; private set; }
 
+        public static string OrderBy { get; private set; }
+
+        public static OrderMethod OrderAZ { get; private set; }
+
         public static void Clear()
         {
             CurrentPage = 0;
@@ -49,6 +53,18 @@ namespace StoryDev.DBO
             UseSearchCount = true;
         }
 
+        public static void Order(string byField, OrderMethod method)
+        {
+            OrderBy = byField;
+            OrderAZ = method;
+        }
 
+
+    }
+
+    public enum OrderMethod
+    {
+        Ascending,
+        Descending
     }
 }
