@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SQLite" Version="3.13.0" />
+    <PackageReference Include="SQLite.Interop.dll" Version="1.0.103" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StoryDev.DBO.Core\StoryDev.DBO.Core.csproj" />
+  </ItemGroup>
+
+</Project>
