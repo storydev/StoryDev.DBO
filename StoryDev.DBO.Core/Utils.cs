@@ -58,11 +58,13 @@ namespace StoryDev.DBO.Core
             else if (op == DBOperator.Equals)
             {
                 if (value.GetType() == typeof(float))
-                    return (float)value == (float)match;
+                    return (float)value == (float)Convert.ToSingle(match);
                 else if (value.GetType() == typeof(decimal))
-                    return (decimal)value == (decimal)match;
+                    return (decimal)value == (decimal)Convert.ToDecimal(match);
                 else if (value.GetType() == typeof(int))
-                    return (int)value == (int)match;
+                    return (int)value == (int)Convert.ToInt32(match);
+                else if (value.GetType() == typeof(long))
+                    return (long)value == (long)Convert.ToInt64(match);
                 else
                     return value.Equals(match);
             }
@@ -413,26 +415,29 @@ namespace StoryDev.DBO.Core
                 {
                     return "TEXT";
                 }
-
-                if (stringSize != null)
+                else if (vendor == DatabaseVendor.MySQL)
                 {
-                    if (stringSize.Size > 0)
-                        length = stringSize.Size;
-
-                    if (stringSize.StringType == SQLStringType.Variable)
-                        return "VARCHAR(" + length + ")";
-                    else if (stringSize.StringType == SQLStringType.Fixed)
+                    if (stringSize != null)
                     {
-                        if (stringSize.Size == (int)SQLStringSizeFormat.Tiny)
-                            return "TINYTEXT";
-                        else if (stringSize.Size == (int)SQLStringSizeFormat.Normal)
-                            return "TEXT";
-                        else if (stringSize.Size == (int)SQLStringSizeFormat.Medium)
-                            return "MEDIUMTEXT";
-                        else if (stringSize.Size == (int)SQLStringSizeFormat.Long)
-                            return "LONGTEXT";
+                        if (stringSize.Size > 0)
+                            length = stringSize.Size;
+
+                        if (stringSize.StringType == SQLStringType.Variable)
+                            return "VARCHAR(" + length + ")";
+                        else if (stringSize.StringType == SQLStringType.Fixed)
+                        {
+                            if (stringSize.Size == (int)SQLStringSizeFormat.Tiny)
+                                return "TINYTEXT";
+                            else if (stringSize.Size == (int)SQLStringSizeFormat.Normal)
+                                return "TEXT";
+                            else if (stringSize.Size == (int)SQLStringSizeFormat.Medium)
+                                return "MEDIUMTEXT";
+                            else if (stringSize.Size == (int)SQLStringSizeFormat.Long)
+                                return "LONGTEXT";
+                        }
                     }
                 }
+                
             }
             else if (type == typeof(sbyte) || type == typeof(byte))
             {

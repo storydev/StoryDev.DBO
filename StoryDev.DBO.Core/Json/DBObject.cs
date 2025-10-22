@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,8 +24,11 @@ namespace StoryDev.DBO.Core.Json
             Manager.SourcePath.Add(name, sourceFile);
             Manager.Items.Add(name, new List<object>());
 
+            var dir = Path.GetDirectoryName(sourceFile);
+            Directory.CreateDirectory(dir);
+
             if (!File.Exists(sourceFile))
-                File.WriteAllText(sourceFile, "");
+                File.WriteAllText(sourceFile, "[]");
             else
             {
                 var results = File.ReadAllText(sourceFile);
@@ -36,7 +40,11 @@ namespace StoryDev.DBO.Core.Json
         {
             var name = GetType().Name;
 
-            var itemIndex = Manager.Items[name].FindIndex((obj) => ((DBObject)obj).ID == ID);
+            var itemIndex = Manager.Items[name].FindIndex((obj) =>
+            {
+                var jObj = JObject.FromObject(obj);
+                return jObj.Property("ID").Value.ToObject<int>() == ID;
+            });
             if (itemIndex == -1)
                 return;
 
@@ -49,7 +57,9 @@ namespace StoryDev.DBO.Core.Json
         {
             var name = GetType().Name;
 
+            ID = Manager.Items[name].Count;
             Manager.Items[name].Add(this);
+
             var content = JsonConvert.SerializeObject(Manager.Items[name]);
             File.WriteAllText(Manager.SourcePath[name], content);
         }
@@ -92,7 +102,7 @@ namespace StoryDev.DBO.Core.Json
             Manager.Items[name].RemoveAt(itemIndex);
             Manager.Items[name].Add(this);
 
-            var content = JsonConvert.SerializeObject(Manager.Items);
+            var content = JsonConvert.SerializeObject(Manager.Items[name]);
             File.WriteAllText(Manager.SourcePath[name], content);
         }
     }

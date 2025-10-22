@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,17 +38,18 @@ namespace StoryDev.DBO.Core.Json
 
         public IEnumerable<object> Search(string name, params DBFilter[] filters)
         {
-            IEnumerable<object> results = null;
+            IEnumerable<object> results = new List<object>();
             if (filters.Length > 0)
             {
-                results = items[name].Where((object obj) =>
+                var objs = items[name].Where((object obj) =>
                 {
                     var found = false;
 
                     foreach (var filter in filters)
                     {
-                        var value = obj.GetType().GetField(filter.FieldName).GetValue(obj);
-                        if (!Utils.GetResultOf(value, filter.Operator, filter.ConditionValue))
+                        var jObject = JObject.FromObject(obj);
+                        var value = jObject.Property(filter.FieldName).Value;
+                        if (!Utils.GetResultOf(value.ToObject<object>(), filter.Operator, filter.ConditionValue))
                             return false;
 
                         found = true;
@@ -55,6 +57,7 @@ namespace StoryDev.DBO.Core.Json
 
                     return found;
                 });
+                results = objs;
             }
             else
             {
