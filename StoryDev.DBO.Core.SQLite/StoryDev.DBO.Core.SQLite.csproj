@@ -7,7 +7,7 @@
     <Configurations>Debug;Release;Debug SQLite</Configurations>
 
 	<PackageId>StoryDev.DBO.Core.SQlite</PackageId>
-	<Version>1.0.0</Version>
+	<Version>1.0.1</Version>
 	<Authors>tienery</Authors>
 	<Company>DesindaDev</Company>
 	<Description>SQLite Binding for StoryDev.DBO.</Description>
