@@ -25,8 +25,18 @@ namespace StoryDev.DBO.Core.SQLite
         public void Delete()
         {
             FieldInfo[] fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             object primaryKeyValue = null;
             foreach (var field in fields)
+            {
+                var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeys != null)
+                {
+                    primaryKeyValue = field.GetValue(this);
+                }
+            }
+
+            foreach (var field in properties)
             {
                 var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
                 if (primaryKeys != null)
@@ -58,8 +68,18 @@ namespace StoryDev.DBO.Core.SQLite
         public void Insert()
         {
             var fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             string primaryKey = null;
             foreach (var field in fields)
+            {
+                var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeys != null)
+                {
+                    primaryKey = field.Name;
+                }
+            }
+
+            foreach (var field in properties)
             {
                 var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
                 if (primaryKeys != null)
@@ -103,6 +123,7 @@ namespace StoryDev.DBO.Core.SQLite
         {
             var name = GetType().Name;
             var fields = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             string primaryKey = null;
             object primaryKeyValue = null;
             foreach (var field in fields)
@@ -112,6 +133,16 @@ namespace StoryDev.DBO.Core.SQLite
                 {
                     primaryKey = field.Name;
                     primaryKeyValue = field.GetValue(this);
+                }
+            }
+
+            foreach (var field in properties)
+            {
+                var primaryKeys = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeys != null)
+                {
+                    primaryKeyValue = field.GetValue(this);
+                    primaryKey = field.Name;
                 }
             }
 

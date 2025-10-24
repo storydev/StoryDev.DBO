@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoryDev.DBO.Core
 {
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
     public class SQLArrayFormat : Attribute
     {
 
