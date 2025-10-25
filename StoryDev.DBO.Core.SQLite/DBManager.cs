@@ -218,6 +218,28 @@ namespace StoryDev.DBO.Core.SQLite
             }
 
             FieldInfo[] fields = currentType.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] properties = currentType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var fieldRefs = new List<FieldRef>();
+            foreach (var field in fields)
+            {
+                fieldRefs.Add(new FieldRef
+                {
+                    Field = field,
+                    Scope = FieldScope.Field,
+                    Property = null
+                });
+            }
+
+            foreach (var prop in properties)
+            {
+                fieldRefs.Add(new FieldRef
+                {
+                    Property = prop,
+                    Scope = FieldScope.Property,
+                    Field = null
+                });
+            }
+
 
             Utils.InitSignatures();
 
@@ -265,15 +287,31 @@ namespace StoryDev.DBO.Core.SQLite
                 if (!Searching.UseSearchCount)
                 {
                     var instance = Activator.CreateInstance(currentType);
-                    for (int i = 0; i < fields.Length; i++)
+                    for (int i = 0; i < fieldRefs.Count; i++)
                     {
-                        var field = fields[i];
+                        var field = fieldRefs[i];
+                        Type fieldType = null;
 
-                        if (field.IsInitOnly)
+                        if (field.Scope == FieldScope.Field)
+                        {
+                            if (field.Field.IsInitOnly)
+                                continue;
+
+                            fieldType = field.Field.FieldType;
+                        }
+                        else if (field.Scope == FieldScope.Property)
+                        {
+                            if (!field.Property.CanWrite)
+                                continue;
+
+                            fieldType = field.Property.PropertyType;
+                        }
+
+                        if (fieldType == null)
                             continue;
 
-                        if (Utils.SqlSignatures.ContainsKey(field.FieldType))
-                            Utils.SqlSignatures[field.FieldType].Invoke(field, instance, reader);
+                        if (Utils.SqlSignatures.ContainsKey(fieldType))
+                            Utils.SqlSignatures[fieldType].Invoke(field, instance, reader);
                     }
 
                     results.Add(instance);
@@ -290,6 +328,28 @@ namespace StoryDev.DBO.Core.SQLite
             Type currentType = typeof(T);
 
             FieldInfo[] fields = currentType.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] properties = currentType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var fieldRefs = new List<FieldRef>();
+            foreach (var field in fields)
+            {
+                fieldRefs.Add(new FieldRef
+                {
+                    Field = field,
+                    Scope = FieldScope.Field,
+                    Property = null
+                });
+            }
+
+            foreach (var prop in properties)
+            {
+                fieldRefs.Add(new FieldRef
+                {
+                    Property = prop,
+                    Scope = FieldScope.Property,
+                    Field = null
+                });
+            }
+
 
             Utils.InitSignatures();
 
@@ -348,15 +408,31 @@ namespace StoryDev.DBO.Core.SQLite
                 if (!Searching.UseSearchCount)
                 {
                     var instance = (T)Activator.CreateInstance(currentType);
-                    for (int i = 0; i < fields.Length; i++)
+                    for (int i = 0; i < fieldRefs.Count; i++)
                     {
-                        var field = fields[i];
+                        var field = fieldRefs[i];
+                        Type fieldType = null;
 
-                        if (field.IsInitOnly)
+                        if (field.Scope == FieldScope.Field)
+                        {
+                            if (field.Field.IsInitOnly)
+                                continue;
+
+                            fieldType = field.Field.FieldType;
+                        }
+                        else if (field.Scope == FieldScope.Property)
+                        {
+                            if (!field.Property.CanWrite)
+                                continue;
+
+                            fieldType = field.Property.PropertyType;
+                        }
+
+                        if (fieldType == null)
                             continue;
 
-                        if (Utils.SqlSignatures.ContainsKey(field.FieldType))
-                            Utils.SqlSignatures[field.FieldType].Invoke(field, instance, reader);
+                        if (Utils.SqlSignatures.ContainsKey(fieldType))
+                            Utils.SqlSignatures[fieldType].Invoke(field, instance, reader);
                     }
 
                     results.Add(instance);

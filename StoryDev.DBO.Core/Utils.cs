@@ -123,57 +123,198 @@ namespace StoryDev.DBO.Core
             if (sqlSignatures == null)
             {
                 sqlSignatures = new Dictionary<Type, Signature>();
-                sqlSignatures.Add(typeof(string), (FieldInfo info, object obj, IDBReader reader) =>
+                sqlSignatures.Add(typeof(string), (FieldRef info, object obj, IDBReader reader) =>
                 {
-                    try { info.SetValue(obj, reader.GetString(info.Name)); } catch { }
+                    try {
+                        if (info.Scope == FieldScope.Field)
+                        {
+                            info.Field.SetValue(obj, reader.GetString(info.Field.Name));
+                        }
+                        else if (info.Scope == FieldScope.Property)
+                        {
+                            info.Property.SetValue(obj, reader.GetString(info.Property.Name));
+                        }
+                    } catch { }
                 });
-                sqlSignatures.Add(typeof(short), (FieldInfo info, object obj, IDBReader reader) =>
+                sqlSignatures.Add(typeof(short), (FieldRef info, object obj, IDBReader reader) =>
                 {
-                    try { info.SetValue(obj, reader.GetInt16(info.Name)); } catch { }
+                    try
+                    {
+                        if (info.Scope == FieldScope.Field)
+                        {
+                            info.Field.SetValue(obj, reader.GetInt16(info.Field.Name));
+                        }
+                        else if (info.Scope == FieldScope.Property)
+                        { 
+                            info.Property.SetValue(obj, reader.GetInt16(info.Property.Name));
+                        }
+                    }
+                    catch { }
                 });
-                sqlSignatures.Add(typeof(int), (FieldInfo info, object obj, IDBReader reader) =>
+                sqlSignatures.Add(typeof(int), (FieldRef info, object obj, IDBReader reader) =>
                 {
-                    try { info.SetValue(obj, reader.GetInt32(info.Name)); } catch { }
+                    try
+                    {
+                        if (info.Scope == FieldScope.Field)
+                        {
+                            info.Field.SetValue(obj, reader.GetInt32(info.Field.Name));
+                        }
+                        else if (info.Scope == FieldScope.Property)
+                        {
+                            info.Property.SetValue(obj, reader.GetInt32(info.Property.Name));
+                        }
+                    }
+                    catch { }
                 });
-                sqlSignatures.Add(typeof(long), (FieldInfo info, object obj, IDBReader reader) =>
+                sqlSignatures.Add(typeof(long), (FieldRef info, object obj, IDBReader reader) =>
                 {
-                    try { info.SetValue(obj, reader.GetInt64(info.Name)); } catch { }
+                    try
+                    {
+                        if (info.Scope == FieldScope.Field)
+                        {
+                            info.Field.SetValue(obj, reader.GetInt64(info.Field.Name));
+                        }
+                        else if (info.Scope == FieldScope.Property)
+                        {
+                            info.Property.SetValue(obj, reader.GetInt64(info.Property.Name));
+                        }
+                    }
+                    catch { }
                 });
-                sqlSignatures.Add(typeof(ushort), (FieldInfo info, object obj, IDBReader reader) =>
+                sqlSignatures.Add(typeof(ushort), (FieldRef info, object obj, IDBReader reader) =>
                 {
-                    try { info.SetValue(obj, reader.GetUInt16(info.Name)); } catch { }
+                    try
+                    {
+                        if (info.Scope == FieldScope.Field)
+                        {
+                            info.Field.SetValue(obj, reader.GetUInt16(info.Field.Name));
+                        }
+                        else if (info.Scope == FieldScope.Property)
+                        {
+                            info.Property.SetValue(obj, reader.GetUInt16(info.Property.Name));
+                        }
+                    }
+                    catch { }
                 });
-                sqlSignatures.Add(typeof(uint), (FieldInfo info, object obj, IDBReader reader) =>
+                sqlSignatures.Add(typeof(uint), (FieldRef info, object obj, IDBReader reader) =>
                 {
-                    try { info.SetValue(obj, reader.GetUInt32(info.Name)); } catch { }
+                    try
+                    {
+                        if (info.Scope == FieldScope.Field)
+                        {
+                            info.Field.SetValue(obj, reader.GetUInt32(info.Field.Name));
+                        }
+                        else if (info.Scope == FieldScope.Property)
+                        {
+                            info.Property.SetValue(obj, reader.GetUInt32(info.Property.Name));
+                        }
+                    }
+                    catch { }
                 });
-                sqlSignatures.Add(typeof(ulong), (FieldInfo info, object obj, IDBReader reader) =>
+                sqlSignatures.Add(typeof(ulong), (FieldRef info, object obj, IDBReader reader) =>
                 {
-                    try { info.SetValue(obj, reader.GetUInt64(info.Name)); } catch { }
+                    try
+                    {
+                        if (info.Scope == FieldScope.Field)
+                        {
+                            info.Field.SetValue(obj, reader.GetUInt64(info.Field.Name));
+                        }
+                        else if (info.Scope == FieldScope.Property)
+                        {
+                            info.Property.SetValue(obj, reader.GetUInt64(info.Property.Name));
+                        }
+                    }
+                    catch { }
                 });
-                sqlSignatures.Add(typeof(float), (FieldInfo info, object obj, IDBReader reader) =>
+                sqlSignatures.Add(typeof(float), (FieldRef info, object obj, IDBReader reader) =>
                 {
-                    try { info.SetValue(obj, reader.GetFloat(info.Name)); } catch { }
+                    try
+                    {
+                        if (info.Scope == FieldScope.Field)
+                        {
+                            info.Field.SetValue(obj, reader.GetFloat(info.Field.Name));
+                        }
+                        else if (info.Scope == FieldScope.Property)
+                        {
+                            info.Property.SetValue(obj, reader.GetFloat(info.Property.Name));
+                        }
+                    }
+                    catch { }
                 });
-                sqlSignatures.Add(typeof(decimal), (FieldInfo info, object obj, IDBReader reader) =>
+                sqlSignatures.Add(typeof(decimal), (FieldRef info, object obj, IDBReader reader) =>
                 {
-                    try { info.SetValue(obj, reader.GetDecimal(info.Name)); } catch { }
+                    try
+                    {
+                        if (info.Scope == FieldScope.Field)
+                        {
+                            info.Field.SetValue(obj, reader.GetDecimal(info.Field.Name));
+                        }
+                        else if (info.Scope == FieldScope.Property)
+                        {
+                            info.Property.SetValue(obj, reader.GetDecimal(info.Property.Name));
+                        }
+                    }
+                    catch { }
                 });
-                sqlSignatures.Add(typeof(byte[]), (FieldInfo info, object obj, IDBReader reader) =>
+                sqlSignatures.Add(typeof(byte[]), (FieldRef info, object obj, IDBReader reader) =>
                 {
-                    try { reader.GetBytes(reader.GetOrdinal(info.Name), 0, (byte[])info.GetValue(obj), 0, ((byte[])info.GetValue(obj)).Length); } catch { }
+                    try
+                    {
+                        if (info.Scope == FieldScope.Field)
+                        {
+                            reader.GetBytes(reader.GetOrdinal(info.Field.Name), 0, (byte[])info.Field.GetValue(obj), 0, ((byte[])info.Field.GetValue(obj)).Length);
+                        }
+                        else if (info.Scope == FieldScope.Property)
+                        {
+                            reader.GetBytes(reader.GetOrdinal(info.Property.Name), 0, (byte[])info.Property.GetValue(obj), 0, ((byte[])info.Property.GetValue(obj)).Length);
+                        }
+                    }
+                    catch { }
                 });
-                sqlSignatures.Add(typeof(bool), (FieldInfo info, object obj, IDBReader reader) =>
+                sqlSignatures.Add(typeof(bool), (FieldRef info, object obj, IDBReader reader) =>
                 {
-                    try { info.SetValue(obj, reader.GetBoolean(info.Name)); } catch { }
+                    try
+                    {
+                        if (info.Scope == FieldScope.Field)
+                        {
+                            info.Field.SetValue(obj, reader.GetBoolean(info.Field.Name));
+                        }
+                        else if (info.Scope == FieldScope.Property)
+                        {
+                            info.Property.SetValue(obj, reader.GetBoolean(info.Property.Name));
+                        }
+                    }
+                    catch { }
                 });
-                sqlSignatures.Add(typeof(double), (FieldInfo info, object obj, IDBReader reader) =>
+                sqlSignatures.Add(typeof(double), (FieldRef info, object obj, IDBReader reader) =>
                 {
-                    try { info.SetValue(obj, reader.GetDouble(info.Name)); } catch { }
+                    try
+                    {
+                        if (info.Scope == FieldScope.Field)
+                        {
+                            info.Field.SetValue(obj, reader.GetDouble(info.Field.Name));
+                        }
+                        else if (info.Scope == FieldScope.Property)
+                        {
+                            info.Property.SetValue(obj, reader.GetDouble(info.Property.Name));
+                        }
+                    }
+                    catch { }
                 });
-                sqlSignatures.Add(typeof(DateTime), (FieldInfo info, object obj, IDBReader reader) =>
+                sqlSignatures.Add(typeof(DateTime), (FieldRef info, object obj, IDBReader reader) =>
                 {
-                    try { info.SetValue(obj, reader.GetDateTime(info.Name)); } catch { }
+                    try
+                    {
+                        if (info.Scope == FieldScope.Field)
+                        {
+                            info.Field.SetValue(obj, reader.GetDateTime(info.Field.Name));
+                        }
+                        else if (info.Scope == FieldScope.Property)
+                        {
+                            info.Property.SetValue(obj, reader.GetDateTime(info.Property.Name));
+                        }
+                    }
+                    catch { }
                 });
             }
         }
