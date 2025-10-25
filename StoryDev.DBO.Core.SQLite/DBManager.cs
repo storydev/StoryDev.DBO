@@ -9,6 +9,8 @@ namespace StoryDev.DBO.Core.SQLite
 
         internal bool IsBuilding;
 
+        public Dictionary<string, Type> RegisteredTypes { get; } = new Dictionary<string, Type>();
+
         /// <summary>
         /// Source Path invalid for SQL connections.
         /// </summary>
@@ -55,6 +57,14 @@ namespace StoryDev.DBO.Core.SQLite
             {
                 resolved = dbType;
             }
+            else if (RegisteredTypes.ContainsKey(name))
+            {
+                resolved = RegisteredTypes[name];
+            }
+            else
+            {
+                throw new ArgumentException("The type '" + name + "' is not registered in the DBManager.");
+            }
 
             if (string.IsNullOrEmpty(name))
             {
@@ -66,6 +76,7 @@ namespace StoryDev.DBO.Core.SQLite
 
             string primaryKey = "";
             FieldInfo[] fields = resolved.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] properties = resolved.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             for (int i = 0; i < fields.Length; i++)
             {
                 FieldInfo field = fields[i];
@@ -102,12 +113,49 @@ namespace StoryDev.DBO.Core.SQLite
                     query += "AUTOINCREMENT ";
                 }
 
-                if (i < fields.Length - 1)
-                {
-                    query += ",\r\n";
-                }
+                query += ",\r\n";
             }
 
+            for (int i = 0; i < properties.Length; i++)
+            {
+                PropertyInfo field = properties[i];
+                if (!field.CanRead)
+                    continue;
+
+                query += "\t";
+
+                var primaryKeyAttr = (SQLPrimaryKey)field.GetCustomAttribute(typeof(SQLPrimaryKey));
+                if (primaryKeyAttr != null)
+                {
+                    if (string.IsNullOrEmpty(primaryKey))
+                    {
+                        primaryKey = field.Name;
+                    }
+                    else
+                    {
+                        throw new Exception("You cannot have more than one primary key on the database object.");
+                    }
+                }
+
+                query += field.Name;
+                query += " ";
+                query += Utils.GetSQLType(field.PropertyType, DatabaseVendor.SQLite) + " ";
+
+                if (primaryKeyAttr != null)
+                {
+                    query += "PRIMARY KEY ";
+                }
+
+                var autoIncrementAttr = (SQLAutoIncrement)field.GetCustomAttribute(typeof(SQLAutoIncrement));
+                if (autoIncrementAttr != null && primaryKeyAttr != null)
+                {
+                    query += "AUTOINCREMENT ";
+                }
+
+                query += ",\r\n";
+            }
+
+            query = query.TrimEnd(',', '\r', '\n');
             query += ");";
 
             var connection = (SQLiteConnection)OpenConnection(ConnectionInfo);
@@ -159,6 +207,16 @@ namespace StoryDev.DBO.Core.SQLite
         {
             Type currentType = null;
 
+            if (RegisteredTypes.ContainsKey(name))
+            {
+                currentType = RegisteredTypes[name];
+            }
+
+            if (currentType == null)
+            {
+                throw new ArgumentException("The type '" + name + "' is not registered in the DBManager.");
+            }
+
             FieldInfo[] fields = currentType.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
             Utils.InitSignatures();
@@ -177,7 +235,11 @@ namespace StoryDev.DBO.Core.SQLite
                 query += "*";
             }
             query += " FROM " + clsName;
-            query += " WHERE " + Utils.GetFilterString(filters);
+            string filterString = Utils.GetFilterString(filters);
+            if (!string.IsNullOrEmpty(filterString))
+            {
+                query += " WHERE " + filterString;
+            }
 
             if (Searching.UsingOptions && !Searching.UseSearchCount
                 && Searching.Limit > -1)

@@ -1,27 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Configurations>Debug;Release;Debug SQLite</Configurations>
-
-	<PackageId>StoryDev.DBO.Core.SQlite</PackageId>
-	<Version>1.0.1</Version>
-	<Authors>tienery</Authors>
-	<Company>DesindaDev</Company>
-	<Description>SQLite Binding for StoryDev.DBO.</Description>
-	<RepositoryUrl>https://github.com/storydev/StoryDev.DBO</RepositoryUrl>
+    <PackageId>StoryDev.DBO.Core.SQlite</PackageId>
+    <Version>1.0.2</Version>
+    <Authors>tienery</Authors>
+    <Company>DesindaDev</Company>
+    <Description>SQLite Binding for StoryDev.DBO.</Description>
+    <RepositoryUrl>https://github.com/storydev/StoryDev.DBO</RepositoryUrl>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="SQLite" Version="3.13.0" />
     <PackageReference Include="SQLite.Interop.dll" Version="1.0.103" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\StoryDev.DBO.Core\StoryDev.DBO.Core.csproj" />
   </ItemGroup>
-
 </Project>

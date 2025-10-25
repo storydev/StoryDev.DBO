@@ -328,7 +328,7 @@ namespace StoryDev.DBO.Core
             return result;
         }
 
-        public static string GenerateInsert(string tableName, FieldInfo[] fields, string primaryKeyName, bool requiresReturning = false)
+        public static string GenerateInsert(string tableName, FieldRef[] fields, string primaryKeyName, bool requiresReturning = false)
         {
             var query = "INSERT INTO " + tableName + " (";
 
@@ -336,16 +336,33 @@ namespace StoryDev.DBO.Core
             for (int i = 0; i < fields.Length; i++)
             {
                 var field = fields[i];
-                if (field.Name == primaryKeyName || field.IsInitOnly)
-                    continue;
-
-                if (!firstValue)
+                if (field.Scope == FieldScope.Field)
                 {
-                    query += ", ";
+                    if (field.Field.Name == primaryKeyName || field.Field.IsInitOnly)
+                        continue;
+
+                    if (!firstValue)
+                    {
+                        query += ", ";
+                    }
+
+                    query += field.Field?.Name;
+                    firstValue = false;
+                }
+                else if (field.Scope == FieldScope.Property)
+                {
+                    if (field.Property.Name == primaryKeyName || !field.Property.CanRead)
+                        continue;
+
+                    if (!firstValue)
+                    {
+                        query += ", ";
+                    }
+
+                    query += field.Property?.Name;
+                    firstValue = false;
                 }
 
-                query += field.Name;
-                firstValue = false;
             }
             query += ") ";
 
@@ -354,15 +371,28 @@ namespace StoryDev.DBO.Core
             for (int i = 0; i < fields.Length; i++)
             {
                 var field = fields[i];
-                if (field.Name == primaryKeyName || field.IsInitOnly)
-                    continue;
-
-                if (!firstValue1)
+                if (field.Scope == FieldScope.Field)
                 {
-                    query += ", ";
+                    if (field.Field.Name == primaryKeyName || field.Field.IsInitOnly)
+                        continue;
+                    if (!firstValue1)
+                    {
+                        query += ", ";
+                    }
+                    query += "@" + field.Field?.Name;
+                    firstValue1 = false;
+                }
+                else if (field.Scope == FieldScope.Property)
+                {
+                    if (field.Property.Name == primaryKeyName || !field.Property.CanRead)
+                        continue;
+                    if (!firstValue1)
+                    {
+                        query += ", ";
+                    }
+                    query += "@" + field.Property?.Name;
                 }
 
-                query += "@" + field.Name;
                 firstValue1 = false;
             }
             query += ")";
@@ -375,7 +405,7 @@ namespace StoryDev.DBO.Core
             return query;
         }
 
-        public static string GenerateUpdate(string tableName, FieldInfo[] fields, object ID, string primaryKeyName, DBFilter[] filters = null)
+        public static string GenerateUpdate(string tableName, FieldRef[] fields, object ID, string primaryKeyName, DBFilter[] filters = null)
         {
             var query = "UPDATE " + tableName + " SET ";
 
@@ -383,20 +413,33 @@ namespace StoryDev.DBO.Core
             for (int i = 0; i < fields.Length; i++)
             {
                 var field = fields[i];
-                if (field.Name == primaryKeyName || field.IsInitOnly)
-                    continue;
-
-                if (!isFirstValue)
+                if (field.Scope == FieldScope.Field)
                 {
-                    query += ", ";
+                    if (field.Field.Name == primaryKeyName || field.Field.IsInitOnly)
+                        continue;
+
+                    if (!isFirstValue)
+                    {
+                        query += ", ";
+                    }
+
+                    query += field.Field.Name + " = @" + field.Field.Name;
                 }
+                else if (field.Scope == FieldScope.Property)
+                {
+                    if (field.Property.Name == primaryKeyName || !field.Property.CanRead)
+                        continue;
 
-                query += field.Name + " = @" + field.Name;
+                    if (!isFirstValue)
+                    {
+                        query += ", ";
+                    }
 
-                isFirstValue = false;
+                    query += field.Property.Name + " = @" + field.Property.Name;
+                }
             }
 
-            if (filters != null)
+            if (filters != null && filters.Length > 0)
                 query += " WHERE " + GetFilterString(filters);
             else
                 query += " WHERE ID = " + ID.ToString();
